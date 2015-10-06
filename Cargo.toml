@@ -1,0 +1,9 @@
+[package]
+name = "tcp"
+version = "0.1.0"
+authors = ["Kohelet <kohelet@cyclonecobra.com>"]
+[features]
+ssl = ["openssl"]
+[dependencies.openssl]
+openssl = "*"
+optional = true
