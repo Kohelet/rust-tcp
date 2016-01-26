@@ -1,9 +1,9 @@
 #[cfg(feature = "ssl")] extern crate openssl;
-#[cfg(feature = "ssl")] use openssl::ssl::{Ssl,SslContext, SslMethod, SslStream};
-#[cfg(feature = "ssl")] use openssl::ssl::error::SslError;
-use std::io::{BufReader, Read, BufRead, BufWriter, Write};
-use std::net::TcpStream;
-use std::fmt;
+#[cfg(feature = "ssl")] pub use openssl::ssl::{Ssl,SslContext, SslMethod, SslStream};
+#[cfg(feature = "ssl")] pub use openssl::ssl::error::SslError;
+pub use std::io::{BufReader, Read, BufRead, BufWriter, Write};
+pub use std::net::TcpStream;
+pub use std::fmt;
 
 
 pub struct UnsecureConnection
@@ -31,11 +31,21 @@ impl UnsecureConnection
         self.writer.write_fmt(format_args!("{}\r\n", to_send));
         self.writer.flush();
     }
-    pub fn read(&mut self) -> String
+    pub fn read(&mut self) -> Option<String>
     {
         let mut buf = String::new();
-        let bytes = self.reader.read_line(&mut buf).unwrap();
-        buf
+        let bytes = match self.reader.read_line(&mut buf)
+        {
+            Ok(x) => x,
+            Err(_) => 0,
+        };
+        if bytes == 0
+        {
+            return None
+        } else
+        {
+            Some(buf)
+        }
     }
 
 }
@@ -70,11 +80,21 @@ impl SSLConnection
         self.writer.write_fmt(format_args!("{}\r\n", to_send)).ok().expect("Bytes not written!");
         self.writer.flush();
     }
-    pub fn read(&mut self) -> String 
+    pub fn read(&mut self) -> Option<String> 
     {
         let mut buf = String::new();
-        let bytes = self.reader.read_line(&mut buf).unwrap();
-        buf
+        let bytes = match self.reader.read_line(&mut buf)
+        {
+            Ok(x) => x,
+            Err(_) => 0,
+        };
+        if bytes == 0
+        {
+            return None
+        } else
+        {
+            Some(buf)
+        }
     }
 
 }
